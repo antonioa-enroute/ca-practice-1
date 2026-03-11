@@ -41,6 +41,12 @@ jobs:
       run: |
         # Replace with your preferred install method if different
         npm install -g @openai/codex
+        
+    - name: Check Codex Home
+      run: ls -la /home/runner/.codex/
+    
+    - name: Start Codex Proxy
+      run: npx @openai/codex-responses-api-proxy start &
     
     - name: Run Codex (non-interactive)
       id: run_codex
