@@ -22,7 +22,7 @@ jobs:
         ref: ${{ inputs.branch }}
 
     - name: Set up Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: "20"
     
@@ -33,6 +33,12 @@ jobs:
       run: |
         mkdir -p test-logs
         npm test 2>&1 | tee test-logs/test-output.log
+
+    - name: Debug files
+      run: |
+        pwd
+        ls -la
+        ls -R .codex || echo "NO CODEX DIR"
       
     - name: Run Codex (non-interactive)
       id: run_codex
