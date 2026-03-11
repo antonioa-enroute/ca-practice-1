@@ -41,7 +41,10 @@ jobs:
       run: |
         # Replace with your preferred install method if different
         npm install -g @openai/codex
-        
+
+    - name: Ensure Codex Home directory exists
+      run: mkdir -p /home/runner/.codex/
+
     - name: Check Codex Home
       run: ls -la /home/runner/.codex/
     
