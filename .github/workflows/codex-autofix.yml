@@ -14,8 +14,6 @@ permissions:
 jobs:
   autofix:
     runs-on: ubuntu-latest
-    env:
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
     steps:
     - name: Checkout branch
@@ -35,30 +33,14 @@ jobs:
       run: |
         mkdir -p test-logs
         npm test 2>&1 | tee test-logs/test-output.log
-
-    - name: Debug files
-      run: |
-        pwd
-        ls -la
-        ls -R .codex || echo "NO CODEX DIR"
-        ls .codex/commands || echo "NO COMMANDS DIR"
-        cat .codex/commands/fix-ci.md || echo "NO PROMPT FILE"
-
-    - name: Debug OPENAI_API_KEY
-      run: |
-        if [ -z "$OPENAI_API_KEY" ]; then
-          echo "API key is missing!"
-          exit 1
-        else
-          echo "API key exists!"
-        fi
-    
+      
     - name: Run Codex (non-interactive)
       id: run_codex
       uses: openai/codex-action@v1
       with:
-        openai-api-key: ${{ env.OPENAI_API_KEY }}
+        openai-api-key: ${{ secrets.OPENAI_API_KEY }}
         prompt-file: .codex/commands/fix-ci.md
+        sandbox: workspace-write
     
     - name: Rerun tests
       run: npm test
