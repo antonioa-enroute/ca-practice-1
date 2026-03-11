@@ -39,7 +39,14 @@ jobs:
         pwd
         ls -la
         ls -R .codex || echo "NO CODEX DIR"
-      
+        ls .codex/commands || echo "NO COMMANDS DIR"
+        cat .codex/commands/fix-ci.md || echo "NO PROMPT FILE"
+
+    - name: Debug OPENAI_API_KEY
+      run: echo "API key exists? ${OPENAI_API_KEY:+yes}" 
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          
     - name: Run Codex (non-interactive)
       id: run_codex
       uses: openai/codex-action@v1
