@@ -1,0 +1,63 @@
+name: codex-auto-fix
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to run the workflow on'
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  autofix:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout branch
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.branch }}
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+    
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run tests (capture logs)
+      run: |
+        mkdir -p test-logs
+        npm test 2>&1 | tee test-logs/test-output.log
+      
+    - name: Install Node (for Codex CLI)
+      uses: actions/setup-node@v4
+      with:
+        node-version: "20"
+
+    - name: Install Codex CLI
+      run: |
+        # Replace with your preferred install method if different
+        npm install -g @openai/codex
+    
+    - name: Run Codex (non-interactive)
+      id: run_codex
+      uses: openai/codex-action@v1
+      with:
+        openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+        prompt-file: .codex/commands/fix-tests.md
+        # optional: keep Codex in a safe sandbox with write access to workspace
+        sandbox: workspace-write
+    
+    - name: Rerun tests
+      run: npm test
+    
+    - name: Commit and push changes
+      run: |
+        git config user.name "codex-autofix-bot"
+        git config user.email "codex-autofix-bot@users.noreply.github.com"
+        git add -A
+        git commit -m "autofix: make CI green" || exit 0
+        git push

@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [ main]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install npm
+        uses: actions/setup-node@v3
+      
+      - name: install dependencies
+        run: npm ci
+      
+      - name: Run tests
+        run: npm test
