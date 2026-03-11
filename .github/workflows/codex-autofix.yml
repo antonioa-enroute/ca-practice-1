@@ -50,6 +50,19 @@ jobs:
     
     - name: Start Codex Proxy
       run: npx @openai/codex-responses-api-proxy start &
+
+    - name: Wait for Codex Proxy to start
+      run: |
+        for i in {1..30}; do
+          if [ -f /home/runner/.codex/22937449533.json ]; then
+            echo "Codex proxy started successfully"
+            exit 0
+          fi
+          echo "Waiting for proxy to initialize... ($i/30)"
+          sleep 1
+        done
+        echo "Timeout waiting for proxy"
+        exit 1
     
     - name: Run Codex (non-interactive)
       id: run_codex
